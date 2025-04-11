@@ -1,0 +1,1 @@
+The model reads the data locally, and the dataset MedQuAD-master needs to be downloaded and extracted in the models.py sibling directory
