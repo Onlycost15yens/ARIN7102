@@ -279,8 +279,6 @@ def inference_model(model, inference_embedding):
         return predicted.item()
     
 
-
-
 if __name__ == "__main__":
     # Load pre-trained BERT model and tokenizer
     print("Loading BERT model and tokenizer...")
