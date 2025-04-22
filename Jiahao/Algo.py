@@ -278,25 +278,23 @@ def inference_model(model, inference_embedding):
         _, predicted = outputs.max(1)
         return predicted.item()
     
-
-if __name__ == "__main__":
+def all_models(text):
     # Load pre-trained BERT model and tokenizer
     print("Loading BERT model and tokenizer...")
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     model = BertModel.from_pretrained('bert-base-uncased')
-    inference_text = "can you take these two medications at the same time of day concerta and lexapro?"
+    inference_text = text
     inference_embedding = get_bert_embedding(inference_text, model, tokenizer)
-    
-    # # preprocessing
-    # embed_questions_from_xlsx("Dataset/MedInfo2019-filtered.xlsx", "Checkpoints/question_embeddings.npy")
     
     # load preprocessed embeddings
     embeddings, question_types = load_embeddings("Checkpoints/question_embeddings.npy")
-
+    
     # Split the data into training and validation sets
     X_train, X_val, y_train, y_val = train_test_split(
-        embeddings, question_types, test_size=0.2, random_state=42
+        embeddings, question_types, test_size=0.01, random_state=42
     )
+
+    predictions = []
 
     # Convert labels to numerical values
     label_encoder = LabelEncoder()
@@ -305,14 +303,17 @@ if __name__ == "__main__":
     
     # KNN classifier
     prediction = knn_classifier(embeddings, question_types, inference_embedding)
+    predictions.append(prediction[0])
     print(f"Given by the KNN classifier, the question type is {prediction[0]}")
     
     # Random Forest classifier
     prediction = random_forest_classifier(embeddings, question_types, inference_embedding)
+    predictions.append(prediction[0])
     print(f"Given by the Random Forest classifier, the question type is {prediction[0]}")
     
     # SVM classifier
     prediction = svm_classifier(embeddings, question_types, inference_embedding)
+    predictions.append(prediction[0])
     print(f"Given by the SVM classifier, the question type is {prediction[0]}")
     
     # ResNet classifier
@@ -326,10 +327,15 @@ if __name__ == "__main__":
     # Make prediction
     prediction_idx = inference_model(resnet, inference_embedding_tensor)
     prediction_label = label_encoder.inverse_transform([prediction_idx])[0]
+    predictions.append(prediction_label)
     print(f"Given by the ResNet classifier, the question type is {prediction_label}")
     
+    # return the most frequent prediction
+    return max(set(predictions), key=predictions.count), predictions
     
-    
-    
-    
-    
+
+if __name__ == "__main__":
+    text = "What color is 30mg prednisone?"
+    answer, predictions = all_models(text)
+    print(f"The question type is {answer}")
+    print(f"The predictions are {predictions}")
