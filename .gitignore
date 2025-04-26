@@ -1,2 +1,9 @@
-# Ignore Jiahao's Datasets content
-Jiahao/Dataset/*
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
